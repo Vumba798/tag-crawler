@@ -1,6 +1,7 @@
 # common IDEs to be ignored
 .idea/
 .metals/
+.bsp/
 .vscode/
 
 # build tool specific entries
