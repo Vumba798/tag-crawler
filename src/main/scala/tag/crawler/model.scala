@@ -1,4 +1,4 @@
-package com.softwaremill
+package tag.crawler
 
 type Url = String
 

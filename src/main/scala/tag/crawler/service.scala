@@ -1,20 +1,17 @@
-package com.softwaremill
+package tag.crawler
 
-import cats.data.*
 import cats.*
-import cats.syntax.all.*
-import cats.effect.instances.all.*
+import cats.data.*
 import cats.effect.*
-import sttp.client3.*
-import sttp.model.*
-import org.typelevel.log4cats.{Logger, LoggerName}
+import cats.effect.instances.all.*
+import cats.syntax.all.*
+import org.jsoup.Jsoup
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import org.typelevel.log4cats.syntax.*
-import sttp.capabilities
+import org.typelevel.log4cats.{Logger, LoggerName}
+import sttp.client3.*
 import sttp.client3.httpclient.cats.HttpClientCatsBackend
-
-import org.jsoup.Jsoup
-import org.jsoup.nodes.*
+import sttp.model.*
 
 import java.net.URL
 import scala.util.Try
@@ -33,7 +30,7 @@ object TitleCrawler extends TitleCrawlerService[IO]:
       for
         results <-
           urls.parTraverse { url =>
-            getTag(backend, url)
+            getTitle(backend, url)
               .map(result => result.bimap(url -> urlErrorToMessage(_), url -> _))
           }
         (failures, successes) = results.partitionMap(identity)
@@ -42,23 +39,12 @@ object TitleCrawler extends TitleCrawlerService[IO]:
 
   // -----------------------------------------------------------------------
 
-  def getTag(backend: SttpBackend[IO, ?], url: String): IO[Either[UrlError, String]] =
+  def getTitle(backend: SttpBackend[IO, ?], url: String): IO[Either[UrlError, String]] =
     (for
       _        <- EitherT.fromEither(validateProtocol(url))
       validUrl <- EitherT.fromEither(validateUrl(url))
-      html <-
-        EitherT(getHtmlRequest(validUrl).send(backend).map {
-          case response if response.code.isSuccess => response.body
-          case response if response.code == StatusCode.NotFound => UrlError.UrlNotFound.asLeft
-          case response if response.code.isServerError =>
-            error"server error response for $validUrl: ${response.statusText}"
-            UrlError.ServerError.asLeft
-          case response if response.code.isClientError =>
-            error"client error response for $validUrl: ${response.statusText}"
-            UrlError.ClientError.asLeft
-          case _ => UrlError.UnknownError.asLeft
-        })
-      title <- EitherT.fromEither(extractTitleTag(html))
+      html     <- EitherT(getHtmlRequest(validUrl).send(backend).map(handleResponseBody))
+      title    <- EitherT.fromEither(extractTitleTag(html))
     yield title).value
 
   def isValidUrl(url: Url): Boolean =
@@ -83,12 +69,26 @@ object TitleCrawler extends TitleCrawlerService[IO]:
         case Right(html)    => html.asRight
       }
 
+  def handleResponseBody(response: Response[Either[UrlError, String]]): Either[UrlError, String] =
+    response match
+      case response if response.code.isSuccess =>
+        response.body
+      case response if response.code == StatusCode.NotFound =>
+        UrlError.UrlNotFound.asLeft
+      case response if response.code.isServerError =>
+        error"server error response: ${response.statusText}"
+        UrlError.ServerError.asLeft
+      case response if response.code.isClientError =>
+        error"client error response: ${response.statusText}"
+        UrlError.ClientError.asLeft
+      case _ =>
+        UrlError.UnknownError.asLeft
+
   def extractTitleTag(html: String): Either[UrlError, String] =
     Try {
       Jsoup.parse(html).title() match
         case "" => UrlError.TitleNotFound.asLeft
         case someTitle => someTitle.asRight
     } getOrElse UrlError.BadHtmlError.asLeft
-
 
 end TitleCrawler

@@ -1,4 +1,4 @@
-package com.softwaremill
+package tag.crawler
 
 import cats.effect.{ExitCode, IO, IOApp}
 import com.comcast.ip4s.{Host, Port, port}
@@ -15,6 +15,7 @@ object Main extends IOApp:
       .flatMap(_.toIntOption)
       .flatMap(Port.fromInt)
       .getOrElse(port"8080")
+
     EmberServerBuilder
       .default[IO]
       .withHost(Host.fromString("localhost").get)
@@ -26,3 +27,5 @@ object Main extends IOApp:
           _ <- IO.println(s"Go to http://localhost:${server.address.getPort}/docs to open SwaggerUI")
           _ <- IO.never
         yield ExitCode.Success
+
+  end run
