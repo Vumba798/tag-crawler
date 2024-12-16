@@ -23,7 +23,6 @@ object Main extends IOApp:
       .build
       .use: server =>
         for
-          _ <- IO.println(s"Go to http://localhost:${server.address.getPort}/docs to open SwaggerUI. Press ENTER key to exit.")
+          _ <- IO.println(s"Go to http://localhost:${server.address.getPort}/docs to open SwaggerUI")
           _ <- IO.never
-        yield ()
-      .as(ExitCode.Success)
+        yield ExitCode.Success

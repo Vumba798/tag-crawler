@@ -3,7 +3,7 @@ lazy val circeVersion = "0.14.10"
 
 lazy val rootProject = (project in file(".")).settings(
   Seq(
-    name := "tag-crawler",
+    name := "title-crawler",
     version := "0.1.0-SNAPSHOT",
     organization := "com.softwaremill",
     scalaVersion := "3.5.2",
@@ -24,9 +24,6 @@ lazy val rootProject = (project in file(".")).settings(
       "org.typelevel" %% "cats-effect"    % "3.5.7",
       "org.typelevel" %% "log4cats-slf4j" % "2.7.0",
       "org.jsoup" % "jsoup" % "1.18.3",
-      "com.softwaremill.sttp.tapir" %% "tapir-sttp-stub-server" % tapirVersion % Test,
-      "org.scalatest" %% "scalatest" % "3.2.19" % Test,
-     // "com.softwaremill.sttp.client3" %% "circe" % "3.10.1" % Test
     )
   )
 )
