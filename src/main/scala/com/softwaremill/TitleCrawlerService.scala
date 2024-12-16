@@ -32,7 +32,7 @@ object TitleCrawler extends TitleCrawlerService[IO]:
     clientBackend.use { backend =>
       for
         results <-
-          urls.traverse { url =>
+          urls.parTraverse { url =>
             getTag(backend, url)
               .map(result => result.bimap(url -> urlErrorToMessage(_), url -> _))
           }
