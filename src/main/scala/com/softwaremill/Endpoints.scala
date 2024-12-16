@@ -13,7 +13,6 @@ import scala.util.Try
 
 object Endpoints:
 
-
   val getTags = endpoint.post
     .in("tags")
     .in(jsonBody[List[String]])

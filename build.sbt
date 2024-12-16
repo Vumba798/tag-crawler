@@ -23,7 +23,7 @@ lazy val rootProject = (project in file(".")).settings(
       "org.typelevel" %% "cats-core"      % "2.12.0",
       "org.typelevel" %% "cats-effect"    % "3.5.7",
       "org.typelevel" %% "log4cats-slf4j" % "2.7.0",
-
+      "org.jsoup" % "jsoup" % "1.18.3",
       "com.softwaremill.sttp.tapir" %% "tapir-sttp-stub-server" % tapirVersion % Test,
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
      // "com.softwaremill.sttp.client3" %% "circe" % "3.10.1" % Test
