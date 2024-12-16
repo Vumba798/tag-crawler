@@ -13,7 +13,6 @@ sbt run # run the application (Main)
 * cats
 * cats-effect
 * tapir
-* circe
 * jsoup
 
 #### Swagger page
